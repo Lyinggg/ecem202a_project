@@ -37,9 +37,9 @@ Cameras, Load Cell Module, 3D printer, Arduino Nano 33 BLE Sence, Raspberry Pi M
 ## 7. Metrics of Success
 
 Our project achieves success if the following are satisfied:
-### 1. The physical components of the auto-feeder works well, i.e., the bowl can be filled with food successfully, as well as water can be pumped into the bottle successfully.
-### 2. Our auto-feeder can detect the remaining amount of food and water with high accuracy. We need to perform experiments and ensure that the accuracy rate is at least 95%. The auto-feeder should also act accordingly, by controlling the food to be fed next time with respect to the amount of remaining food. Again, we will design experiments to test this function.
-### 3. Our mobile App performs remote work perfectly, and notify users of the current status of food and water containers correctly. The App package should not be too large, with no less than 100M.
+1. The physical components of the auto-feeder works well, i.e., the bowl can be filled with food successfully, as well as water can be pumped into the bottle successfully.
+2. Our auto-feeder can detect the remaining amount of food and water with high accuracy. We need to perform experiments and ensure that the accuracy rate is at least 95%. The auto-feeder should also act accordingly, by controlling the food to be fed next time with respect to the amount of remaining food. Again, we will design experiments to test this function.
+3. Our mobile App performs remote work perfectly, and notify users of the current status of food and water containers correctly. The App package should not be too large, with no less than 100M.
   
 
 ## 8. Execution Plan

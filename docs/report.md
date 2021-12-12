@@ -94,7 +94,7 @@ However, there is an issue. Because the step motor is driven by a continuous  si
 There is another thing we need to point out. There are actually two hardware implementations of Serial on Nano 33 BLE. One is Serial which is used to communicate with a PC via a USB port. Another one is Serial1, which is used to communicate with another device via TX/RX. Thus, if we want to connect this two Nanos, we need to use Serail1 instead of Serial.
 
 ## 3.4. Raspberry Pi
-On Raspberry Pi, we use the bluepy library to build bluetooth with Nano. And use the requests library to handle HTTP requests such as GET/POST. And we use the same technique as we did in Nano. Using interval to do period tasks without block. It uses long polling to update the command from the server per second by GET method. Alse, it uses the  POST method to send Nano’s data to the server so that the server can make decisions based on those data.
+On Raspberry Pi, we use the bluepy library to build bluetooth with Nano. And use the requests library to handle HTTP requests such as GET/POST. And we use the same technique as we did in Nano. Using interval to do period tasks without block. It uses long polling to update the command from the server per second by GET method. Also, it uses the  POST method to send Nano’s data to the server so that the server can make decisions based on those data.
 
 ## 3.5. Server
 On the server side, we use the Flask framework to build a HTTP server which listens at 5000 port. It provides serial GET and POST methods to allow Raspberry Pi or user’s application to get data from the server and set data to the Server. The following are the features of each HTTP requests handler function.

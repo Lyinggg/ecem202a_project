@@ -100,32 +100,32 @@ On Raspberry Pi, we use the bluepy library to build bluetooth with Nano. And use
 
 ## 3.5. Server
 On the server side, we use the Flask framework to build a HTTP server which listens at 5000 port. It provides serial GET and POST methods to allow Raspberry Pi or user’s application to get data from the server and set data to the Server. The following are the features of each HTTP requests handler function.
--/feed [‘POST’]  
+- /feed [‘POST’]  
 User’s application can use the API to manually send a feed command to Auto-feeder to let it convey food. In our design, while the user sends the feed command, it also needs to send a password in the json format to do the identification.
 And the server will check the remaining food amount in the bowl. If the remaining amount is too close to the target amount, the server will inhibit this manually feed operation. And return an error message to the server to say how much food is in the bowl. Otherwise,this function will set the cmd value to the corresponding quarter that the motor needs to rotate. 
 
--/getFre [‘GET’]  
+- /getFre [‘GET’]  
 This API is provided to Raspberry Pi to enable it to get the user setted auto-feed frequency. The type  of Fre is an integer corresponding to the hour interval between each feeding.
 
--/setFre [‘POST’]  
+- /setFre [‘POST’]  
 This API is provided to the user's application to enable the user to set the auto-feed frequency.
 
--/getAmount [‘GET’]  
+- /getAmount [‘GET’]  
 This API is provided to the Raspberry Pi to enable it to get the user setted auto-feed amount. The type of amount is an integer corresponding to how much gram of food needs to be fed.
 
--/setAmount [‘POST’]  
+- /setAmount [‘POST’]  
 This API is provided to the user’s application to enable the user to set the auto-feed amount.
 
--/log [‘GET’]  
+- /log [‘GET’]  
 This API is provided to the user’s application to enable it to grab the last 10 recent activities.
 
--/getcmd [‘GET’]  
+- /getcmd [‘GET’]  
 This API is provided to the Raspberry Pi to enable it to get the cmd from the server. The cmd is an integer, and it means how many quarter laps the machine needs to rotate. Because our machine will deliver food 4 times in one lap. Thus, the minimum countable unit is a quarter lap. And by our test, in one quarter lap it will deliver around 5g of food. Thus cmd is calculated by the amount divided by 5g. For example, if we want to feed 20g of food. Then the cmd should be 4. 
 
--/reset() [‘GET’]  
+- /reset() [‘GET’]  
 This API is provided to Raspberry Pi to let it tell the server the last cmd has been received and processed. 
 
--/data [‘POST’]  
+- /data [‘POST’]  
 This API is provided to Raspberry Pi to enable it to send local data to the server in Json format by POST.
 
 ## 3.6. iOS App

@@ -83,13 +83,14 @@ The second and third technical parts are a cloud server and a mobile App. The Ra
 
 We designed and 3D-printed the prototype of our auto-feeder. The left picture is the overview of the machine, which consists of a food tank, a water tank and two bowls below. The right picture is the structure inside the food tank. We can control three step motors to rotate the three vertical gears, so that they can drive the main gear on the top to release cat food.
 
-
-<img src="https://raw.githubusercontent.com/7hgTnec/ecem202a_project/main/docs/media/pic/3Dmodel_0.jpg" width="280"/><img src="https://raw.githubusercontent.com/7hgTnec/ecem202a_project/main/docs/media/pic/3Dmodel_1.jpg" width="280"/>
+<figure>
+<img src="https://raw.githubusercontent.com/7hgTnec/ecem202a_project/main/docs/media/pic/3Dmodel_0.jpg" width="280"/><img src="https://raw.githubusercontent.com/7hgTnec/ecem202a_project/main/docs/media/pic/3Dmodel_1.jpg" width="260"/>
+</figure>
 
 
 
 ## 3.3. Arduino Nano 33 BLE
-We let the Nano build a connection with Raspberry Pi by Bluetooth LE using the “ArduinoBLE.h” library. After the connection is built, Nano collects local data, such as food weight, and sends the data to the Raspberry Pi by bluetooth. To avoid block delay, we record the time since the last activity to make sure the time difference between the two activities is 2 seconds. Every few seconds Nano checks if there is any command data received from Raspberry Pi. If Nano gets a command value which is bigger than 0, then it will control the step motors to rotate the corresponding quarters to release cat food. 
+We let the Nano build a connection with Raspberry Pi by Bluetooth LE using the “ArduinoBLE.h” library. After the connection is built, Nano collects local data, such as food weight, and sends the data to the Raspberry Pi by bluetooth. To avoid block delays, we record the time since the last activity to make sure the time difference between the two activities is 2 seconds. Every few seconds Nano checks if there is any command data received from Raspberry Pi. If Nano gets a command value which is bigger than 0, then it will control the step motors to rotate the corresponding quarters to release cat food. 
 
 However, there is an issue. Because the step motor is driven by a continuous  signal. Thus, during the food conveying period, the program will be blocked until the food conveying process is done. Also, Nano is powered by a USB port. The power of a USB port is not enough to drive 3 step motors together. Thus, to solve these problems, we added an additional Nano as a driver with an individual power supply. When the master Nano needs to convey food, it only sends a message to the driver Nano. In this way, we avoid the block issue during the food conveying process. Also, due to the exclusive power supply, motors will have enough power to do the conveying.
 

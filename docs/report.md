@@ -83,9 +83,9 @@ The second and third technical parts are a cloud server and a mobile App. The Ra
 
 We designed and 3D-printed the prototype of our auto-feeder. The left picture is the overview of the machine, which consists of a food tank, a water tank and two bowls below. The right picture is the structure inside the food tank. We can control three step motors to rotate the three vertical gears, so that they can drive the main gear on the top to release cat food.
 
-<center class="half">
+
 <img src="https://raw.githubusercontent.com/7hgTnec/ecem202a_project/main/docs/media/pic/3Dmodel_0.jpg" width="280"/><img src="https://raw.githubusercontent.com/7hgTnec/ecem202a_project/main/docs/media/pic/3Dmodel_1.jpg" width="280"/>
-</center>
+
 
 
 ## 3.3. Arduino Nano 33 BLE

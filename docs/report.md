@@ -9,7 +9,12 @@
 
 # Abstract
 
-Provide a brief overview of the project objectives, approach, and results.
+An automatic pet feeder is a good choice when people are away from home but need to take care of their pets. However, most auto-feeders on the market have a similar disadvantage, that they mechanically pour food on time with a fixed amount, without checking how much food remains in the bowl. This will cause a build-up of food if there is much food left since the last feeding. We want to design a new auto-feeder that can avoid such problems. 
+
+In our approach, we use a highly accurate load module and a computer vision algorithm with picture capture to measure a more accurate remaining amount of food and water, so that we can dynamically adjust our next feeding based on the data. Our auto-feeder also connects to the internet and provides users with a mobile App to monitor the previous and current status of the feeder, and allows users to manually feed their pets if needed. To achieve our goals, we design and 3D-print the prototype of our auto-feeder, and use two Arduino Nano 33 BLE Sense to collect signals from the load module and drive motors to deliver food. Signals are then sent to the Raspberry Pi through Bluetooth for further processing. Because of time limits, for remaining water detection we only complete the basic algorithm to read images and detect water level using OpenCV on the Raspberry Pi. We implement a cloud server and a mobile App. The Raspberry Pi will send information about the feeder to the cloud server. A user can use the mobile App to view previous feeding activity by requesting data stored in the cloud server. A user can also set a new feeding frequency and feeding amount, or even feed cats manually by sending an HTTP POST request to the server. 
+
+Our results showed that we essentially achieved all of the designing goals. The machine is able to deliver food automatically, dynamically adjust the feeding amount based on remaining food, and monitor the amount of remaining water if given an image of the water tank. Users are also able to monitor the log and manually feed their pets on the mobile App.
+
 
 # 1. Introduction
 
@@ -43,7 +48,7 @@ One risk we may face is that if we use a camera to take pictures in users' homes
 
 ## 1.6. Requirements for Success
 
-To perform the project, we need programming skills related to Arduino, Raspberry Pi, and iOS development. We need to implement circuits that receive signals and control motors / steering gears. We also need to use CAD to design and 3D print the components we need for the auto-feeder. Basic knowledge of network IoT are also required.
+To perform the project, we need programming skills related to Arduino, Raspberry Pi, and iOS development. We need to implement circuits that receive signals and control motors / steering gears. We also need to use CAD to design and 3D print the components we need for the auto-feeder. Basic knowledge of network IoT is also required.
 
 Resources we need include: 
 Cameras, Load Cell Module, 3D printer, Arduino Nano 33 BLE Sense Raspberry Pi Model 3 B, softwares (see 9.c) and corresponding online documents.
@@ -83,48 +88,60 @@ The second and third technical parts are a cloud server and a mobile App. The Ra
 
 We designed and 3D-printed the prototype of our auto-feeder. The left picture is the overview of the machine, which consists of a food tank, a water tank and two bowls below. The right picture is the structure inside the food tank. We can control three step motors to rotate the three vertical gears, so that they can drive the main gear on the top to release cat food.
 
+<p align="center">
 <img src="https://raw.githubusercontent.com/7hgTnec/ecem202a_project/main/docs/media/pic/3Dmodel_0.jpg" width="280"/><img src="https://raw.githubusercontent.com/7hgTnec/ecem202a_project/main/docs/media/pic/3Dmodel_1.jpg" width="260"/>
-
+</p>
 
 ## 3.3. Arduino Nano 33 BLE
-We let the Nano build a connection with Raspberry Pi by Bluetooth LE using the “ArduinoBLE.h” library. After the connection is built, Nano collects local data, such as food weight, and sends the data to the Raspberry Pi by bluetooth. To avoid block delays, we record the time since the last activity to make sure the time difference between the two activities is 2 seconds. Every few seconds Nano checks if there is any command data received from Raspberry Pi. If Nano gets a command value which is bigger than 0, then it will control the step motors to rotate the corresponding quarters to release cat food. 
+We let the Nano build a connection with Raspberry Pi by Bluetooth LE by “ArduinoBLE.h” library. After the connection is built, Nano collects the local data, such as food weight, and sends the data to the Raspberry Pi by bluetooth. To avoid block delay, we record the time since the last activity to make sure the time difference between two activities is 2 seconds. Every few seconds Nano checks if there is any command data received from Raspberry Pi. If Nano gets a command value which is bigger than 0, then it will control the step motors to rotate corresponding quarters to release cat food. 
 
-However, there is an issue. Because the step motor is driven by a continuous  signal. Thus, during the food conveying period, the program will be blocked until the food conveying process is done. Also, Nano is powered by a USB port. The power of a USB port is not enough to drive 3 step motors together. Thus, to solve these problems, we added an additional Nano as a driver with an individual power supply. When the master Nano needs to convey food, it only sends a message to the driver Nano. In this way, we avoid the block issue during the food conveying process. Also, due to the exclusive power supply, motors will have enough power to do the conveying.
+However, using only one Nano has some issues. Since the step motor is driven by a continuous signal during the food conveying period, the program will be blocked until the food conveying process is done. Another issue is that Nano is powered by a USB port, but the power of a USB port is not enough to drive 3 step motors together. To solve these problems, we added an additional Nano as a driver with an individual power supply. When the master Nano needs to convey food, it only sends a message to the driver Nano, and the driver Nano will continue to release food. We can avoid the block issue during the food conveying process in this way. Also, due to the exclusive power supply, motors will have enough power to do the conveying.
 
-There is another thing we need to point out. There are actually two hardware implementations of Serial on Nano 33 BLE. One is Serial which is used to communicate with a PC via a USB port. Another one is Serial1, which is used to communicate with another device via TX/RX. Thus, if we want to connect these two Nanos, we need to use Serail1 instead of Serial.
+There is another thing we need to point out. There are actually two hardware implementations of Serial on Nano 33 BLE. One is Serial which is used to communicate with a PC via USB port. Another one is Serial1 which is used to communicate with another device via TX/RX.
 
 ## 3.4. Raspberry Pi
-On Raspberry Pi, we use the bluepy library to build bluetooth with Nano. And use the requests library to handle HTTP requests such as GET/POST. And we use the same technique as we did in Nano. Using interval to do period tasks without block. It uses long polling to update the command from the server per second by GET method. Also, it uses the  POST method to send Nano’s data to the server so that the server can make decisions based on those data.
+On Raspberry Pi, we use the bluepy library to build bluetooth with Nano. And use the requests library to handle HTTP requests such as GET/POST. We use the same technique as we did in Nano. Using intervals to do period tasks without blocking. It uses long polling to update the command from the server per second by GET method. Alse, it uses the POST method to send Nano’s data to the server so that the server can make decisions based on those data.
 
 ## 3.5. Server
-On the server side, we use the Flask framework to build a HTTP server which listens at port 5000. It provides serial GET and POST methods to allow Raspberry Pi or user’s application to get data from the server and set data to the Server. The following are the features of each HTTP requests handler function.
-- /feed [‘POST’]  
-User’s application can use the API to manually send a feed command to Auto-feeder to let it convey food. In our design, while the user sends the feed command, it also needs to send a password in the json format to do the identification.
-And the server will check the remaining food amount in the bowl. If the remaining amount is too close to the target amount, the server will inhibit this manually feed operation. And return an error message to the server to say how much food is in the bowl. Otherwise,this function will set the cmd value to the corresponding quarter that the motor needs to rotate. 
+On the server side, we use the Flask framework to build a HTTP server which listens at 5000 port. It provides serial GET and POST methods to allow Raspberry Pi or user’s application to get data from the server and set data to the server. The following are the features of each HTTP requests handler function.
 
-- /getFre [‘GET’]  
-This API is provided to Raspberry Pi to enable it to get the user setted auto-feed frequency. The type  of Fre is an integer corresponding to the hour interval between each feeding.
+- feed [‘POST’]:
+  
+  User’s application can use the API to manually send a feed command to the auto-feeder to add more food. In our design, while the user sends the feed command, it also needs to send a password in the json format to do the identification.
+  
+  Then the server will check the remaining food amount in the bowl. If the remaining amount is too close to the target amount, the server will inhibit this manually feed operation. And return an error message to the server to notify users how much food is in the bowl. Otherwise, this function will set the cmd value to the corresponding quarter that the motor needs to rotate to convey food. 
 
-- /setFre [‘POST’]  
-This API is provided to the user's application to enable the user to set the auto-feed frequency.
+- getFre [‘GET’]:
+  
+  This API is provided to Raspberry Pi to get the user setted auto-feed frequency. The type of Fre is an integer corresponding to the hour interval between each feeding.
 
-- /getAmount [‘GET’]  
-This API is provided to the Raspberry Pi to enable it to get the user setted auto-feed amount. The type of amount is an integer corresponding to how much gram of food needs to be fed.
+- setFre [‘POST’]:
+  
+  This API is provided to the user's application to enable the user to set the auto-feed frequency.
 
-- /setAmount [‘POST’]  
-This API is provided to the user’s application to enable the user to set the auto-feed amount.
+- getAmount [‘GET’]:
+  
+  This API is provided to the Raspberry Pi to enable it to get the user setted auto-feed amount. The type of amount is an integer corresponding to how much gram of food needs to be fed.
 
-- /log [‘GET’]  
-This API is provided to the user’s application to enable it to grab the last 10 recent activities.
+- setAmount [‘POST’]:
+  
+  This API is provided to the user’s application to enable the user to set the auto-feed amount in one feeding.
 
-- /getcmd [‘GET’]  
-This API is provided to the Raspberry Pi to enable it to get the cmd from the server. The cmd is an integer, and it means how many quarter laps the machine needs to rotate. Because our machine will deliver food 4 times in one lap. Thus, the minimum countable unit is a quarter lap. And by our test, in one quarter lap it will deliver around 5g of food. Thus cmd is calculated by the amount divided by 5g. For example, if we want to feed 20g of food. Then the cmd should be 4. 
+- log [‘GET’]:
+  
+  This API is provided to the user’s application to enable it to grab the last 10 recent activities.
 
-- /reset() [‘GET’]  
-This API is provided to Raspberry Pi to let it tell the server the last cmd has been received and processed. 
+- getcmd [‘GET’]:
+  
+  This API is provided to the Raspberry Pi to enable it to get the cmd from the server. The cmd is an integer, and it means how many quarter laps the machine needs to rotate. According to our design, the machine will deliver food 4 times in one lap, and the minimum countable unit is a quarter lap. In our test, the machine delivers around 5g of food in one quarter lap. Therefore, the value of cmd is calculated by the amount of food to deliver divided by 5g. For example, if we want to feed 20g of food, then the cmd value should be 4. 
 
-- /data [‘POST’]  
-This API is provided to Raspberry Pi to enable it to send local data to the server in Json format by POST.
+- reset() [‘GET’]:
+  
+  This API is provided to Raspberry Pi to let it tell the server the last cmd has been received and processed. 
+
+- data [‘POST’]:
+  
+  This API is provided to Raspberry Pi to enable it to send local data to the server in Json format by POST.
 
 ## 3.6. iOS App
 
@@ -147,14 +164,22 @@ This algorithm works for ideal images, i.e., it may require a clean background a
 
 
 # 4. Evaluation and Results
-There are four main goals we need to achieve. There are: Our machine should be able to convey food automatically; Users should be able to monitor the log and manually feed their pets. Our machine should be able to automatically adjust the feed amount based on the remaining food. And it should be able to monitor the amount of remaining water by CV.
+There are four main goals we need to achieve: 
+1. Our machine should be able to deliver food automatically;
+2. Users should be able to monitor the log and manually feed their pets; 
+3. Our machine should be able to automatically adjust the feeding amount based on the remaining food; 
+4. Our machine should be able to monitor the amount of remaining water.
 
-And during our test, we first set the feed period to 5 minutes and the amount to 20g. Then the machine was able to convey food to the bowl every 5 minutes. In total 3 times testing, the amount of food conveyed was 22g, 19g, 19g, when the remaining amount of food in the bowl was 0g, 4g, 8g. And when we manually fed 20g. If the remaining food in the bowl is less than 15g, the server accepts this operation. And when the amount of food is greater than 15g, the server refuses this operation and returns an error message. And in our testing, when the water bottle is in a no-noise light environment, our program can recognize the water surface and calculate the percentage accurately. 
+We performed tests to evaluate our auto-feeder. We first tested the functioning of auto-feeding with fixed frequency. We set the feeding period to 5, 10 and 20 minutes and the feeding amount each time to 20. Our machine managed to add food to the bowl according to the frequency of every 5, 10 and 20 minutes, respectively. 
+
+Second, we tested the ability of our machine to adjust feeding food amounts dynamically. In a series of three tests, we set the amount of food to be conveyed to be 22g, 19g, 19g, when the remaining amount of food in the bowl was 0g, 4g, 8g. We added one more test to feed manually, and the default amount of manual feeding was 20g. We set 15g to be the maximum amount of food remaining in the bowl, i.e., the bowl was full at 15g. In each of the tests, if our machine detected that the remaining food in the bowl was less than 15g, the server accepted the feeding operation. Otherwise, when the amount of food was greater than 15g, the server refused the feeding operation and returned an error message. 
+
+Third, we test the CV algorithm to detect remaining water. When the water bottle was in a light environment with a clean background, our program can recognize the water surface and calculate the percentage of remaining water accurately. 
 
 # 5. Discussion and Conclusions
-Our machine achieves essentially all of its design goals. But there are still some issues that need to be solved. First, our power supply will overheat if the motor works for a long continuous time. As a result, it cannot support enough power to drive them until it cools down. The second issue is that our components are too complex and the cost is expensive. Thus, in future, we plan to use PCBs to substitute wire connections. Since the main purpose of Raspberry Pi is to build connections between Nano and Server by the internet. Thus, Nano and Raspberry Pi can be replaced by an ESP8266-Arduino. Finally, our openCV program can only work without noise. Thus, we need a better model to do this recognition, and AI+CV may be a possible solution.
+Our machine achieves essentially all of the designing goals, but there are still some issues that need to be solved. First, our power supply will overheat if the motors work for a long time continuously. If overheat happens, the power supply cannot support enough power to drive the motors until it cools down. The second issue is that our components are too complex and the cost is expensive. In future we plan to use PCBs to substitute wire connections. We can also replace Nano and Raspberry Pi by an ESP8266-Arduino, since the main purpose of Raspberry Pi is to build connections between Nano and Server by the internet. Finally, our water detection part is not complete. We should finish the 3D-printing of the water tank and add a camera to take pictures of the tank. We can also improve the openCV program, as now it only works without ideal images without too much noise. We need a better model to do this recognition, and AI+CV may be a good solution.
 
-In summary, even though some functionalities currently require special conditions to work. But we have reasonable solutions to these problems in the future. Thus, by our serial tests, we have proved our machine can dynamically adjust the convey amount to ensure that the total amount of food in the bowl is always close to the target amount. Which indicates that our design logic can solve the over-feed problem we mentioned at the beginning.
+In summary, even though some functionalities currently require special conditions to work, we have reasonable solutions to solve those problems in the future. By our serial tests, we have proved our machine can dynamically adjust the feeding amount to ensure that the total amount of food in the bowl is always close to or less than the target amount to avoid food piling up. The results indicate that our design logic can solve the over-feeding problem we mentioned at the beginning.
 
 
 # 6. References
@@ -173,6 +198,8 @@ In summary, even though some functionalities currently require special condition
 [7] "Arduino IDE 1.8.16", 2021. [Online]. Available: https://www.arduino.cc/en/software. [Accessed: 05- Nov- 2021].
 
 [8] "SOLIDWORKS", 2021. [Online]. Available: https://www.solidworks.com/. [Accessed: 05- Nov- 2021].
+
+
 
 
 

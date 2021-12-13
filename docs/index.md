@@ -13,7 +13,8 @@ Our results showed that we essentially achieve all of the designing goals. The m
 
 # Required Submissions
 
-* [Proposal](proposal)
-* [Midterm Checkpoint Presentation Slides](http://)
-* [Final Presentation Slides](http://)
-* [Final Report](report)
+* [Proposal](https://github.com/7hgTnec/ecem202a_project/blob/main/docs/proposal.md)
+* [Midterm Checkpoint Presentation Slides](https://www.youtube.com/watch?v=6sHJ5y1Uhzs)
+* [Final Presentation Slides](https://www.youtube.com/watch?v=KdiD5BC-hSk)
+* [Demo Video](https://drive.google.com/file/d/1RbNqImx3Dk9ITvyLzwktnJUrLoQa-qmm/view?usp=sharing)
+* [Final Report](https://github.com/7hgTnec/ecem202a_project/blob/main/docs/report.md)

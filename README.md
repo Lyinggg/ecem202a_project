@@ -1,10 +1,17 @@
-# ecem202a_project
-This is repository template for UCLA ECEM202A / CSM213A projects.
+# ecem202a_project: Intelligent Auto-feeder with IoT
 
-Use the folders as follows:
+## Team
+* Weitao Sun
+* Liying Han
+
+## Overview
+* [Proposal](proposal)
+* [Midterm Checkpoint Presentation Slides](http://)
+* [Final Presentation Slides](http://)
+* [Final Report](report)
+
+## Contents
 
 * doc/ for website content
-* software/ for code used in your project
-* data/ for data data used in your project
-
-You may add additional folders as necessary.
+* software/ for code used in our project
+* data/ for data data used in our project
